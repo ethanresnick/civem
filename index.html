@@ -28,10 +28,17 @@
                         el.empty().append(can.view('startScreen'));
                         break;
                     case 'results':
-                        el.empty().append(can.view('resultsView', {'completedVerbs':this.quiz.completedVerbs, 'score':this.quiz.score}));
+                        el.empty().append(can.view('resultsView', {
+                            'completedVerbs': this.quiz.completedVerbs, 
+                            'score': this.quiz.score
+                        }));
                         break;
                     case 'study':
-                        el.empty().append(can.view('appView', {'quiz':this.quiz, 'tenses':Verb.validTenses, 'updateTenseList': function() { self.updateTenseList(); }}));
+                        el.empty().append(can.view('appView', {
+                            'quiz':this.quiz, 
+                            'tenses': Object.keys(Verb.validTenseSubjectsMap), 
+                            'updateTenseList': function() { self.updateTenseList(); }
+                        }));
                         break;
                 }
             },
@@ -43,11 +50,14 @@
             },
 
             'updateTenseList': function() {
-                var newTenses = [];
-                $(':checked', this.element).each(function(index, value) {
-                    newTenses.push($(value).attr('data-tense-name'));
+                var self = this;
+                $('#tenses input', this.element).each(function(index, value) {
+                    var el = $(value),
+                        checked = el.prop('checked'),
+                        tense = el.attr('data-tense-name');
+
+                    self.quiz[checked ? 'enableTense' : 'disableTense'](tense);
                 });
-                this.quiz.attr('tenses', newTenses);
                 this.newPrompt();
             },
 
@@ -58,7 +68,7 @@
                 params = !$(e.target).hasClass('all') ? {'irregular':true} : {};
 
                 Verb.findAll(params, function(verbs){
-                    self.quiz = new Quiz(verbs, Verb.validTenses, Verb.validSubjects);
+                    self.quiz = new Quiz(verbs, $.extend({}, Verb.validTenseSubjectsMap));
                     can.route.attr({'screen':'study'});
                 });
             },
@@ -71,9 +81,10 @@
                 this.quiz.gradeAnswer(givenAnswer);
 
                 this.element.find('fieldset:first-child').after(
-                    can.view('feedbackView', 
-                        {'correct':this.quiz.currentAnswer==this.quiz.cleanAnswer(givenAnswer, this.quiz.currentSubject), 'answer':this.quiz.currentAnswer}
-                    )
+                    can.view('feedbackView', {
+                        'correct':this.quiz.currentAnswer==this.quiz.cleanAnswer(givenAnswer, this.quiz.currentSubject), 
+                        'answer':this.quiz.currentAnswer
+                    })
                 );
 
                 var handleKeypress = function(e) {
