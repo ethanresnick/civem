@@ -47,12 +47,11 @@ var Quiz = can.Model.extend({
         return definition;
     }
 }, {
-    init: function(verbs, tenses, subjects) {
+    init: function(verbs, tenseMap) {
         this.remainingVerbs = verbs || [];
         this.completedVerbs = [];
         this.attr('done', false);
-        this.attr('subjects', subjects);
-        this.attr('tenses', tenses);
+        this.attr('tenseMap', tenseMap);
 
         this.attr('pointsScored', 0);
         this.attr('possiblePoints', 0);
@@ -115,18 +114,31 @@ var Quiz = can.Model.extend({
         return words[verbIndex].substr(0, verb.root.length);
     },
 
+    disableTense: function(tense) {
+        if(this.tenseMap[tense]) {
+            //adding a disabled prop on the subjects array
+            //is a bit awkward, but whatever. it's easy.
+            this.tenseMap[tense].attr('disabled', true);
+        }
+    },
+
+    enableTense: function(tense) {        
+        if(this.tenseMap[tense]) {
+            this.tenseMap[tense].attr('disabled', false);
+        }
+    },
+
     randomTense: function() {
-        return can.fixture.rand(this.tenses, 1)[0];
+        var applicableTenses = can.Map.keys(this.tenseMap).filter(function(tense) { return !this.tenseMap[tense].disabled; }, this);
+        return can.fixture.rand(applicableTenses, 1)[0];
     },
 
     randomSubject: function(tense) {
-        var applicableSubjects = this.subjects.slice(0);
+        return can.fixture.rand(this.tenseMap[tense], 1)[0];
+    },
 
-        if(tense=='imperativo') {
-            applicableSubjects.splice(applicableSubjects.indexOf('io'), 1);
         }
 
-        return can.fixture.rand(applicableSubjects, 1)[0];
     }
 
 });
