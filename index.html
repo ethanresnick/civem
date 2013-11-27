@@ -1,0 +1,155 @@
+<html lang="en-us">
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <title>Conjugator of Italian Verbs by Ethan and Margaret (aka CIVEM)</title>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script>
+        var J50Npi={currentScript:null,getJSON:function(b,d,h){var g=b+(b.indexOf("?")+1?"&":"?");var c=document.getElementsByTagName("head")[0];var a=document.createElement("script");var f=[];var e="";this.success=h;d.callback="J50Npi.success";for(e in d){f.push(e+"="+encodeURIComponent(d[e]))}g+=f.join("&");a.type="text/javascript";a.src=g;if(this.currentScript){c.removeChild(currentScript)}c.appendChild(a)},success:null};
+        </script>
+        <script src="can.js"></script>
+        <script src="can.localstorage.js"></script>
+        <script src="can.cachedmodel.js"></script>
+        <script src="helpers.mustache.js"></script>
+        <script src="can.Quiz.js"></script>
+        <script src="can.Verb.js"></script>
+        <link rel="stylesheet" href="style.css" />
+        <script>
+        var App = can.Control.extend({
+            init: function(el) {
+                can.route(':screen');
+                can.route.ready();
+                can.route.attr('screen','start');
+            },
+
+            ':screen route': function(data) {
+                var el = this.element, self = this;
+                switch(data.screen) {
+                    case 'start':
+                        el.empty().append(can.view('startScreen'));
+                        break;
+                    case 'results':
+                        el.empty().append(can.view('resultsView', {'completedVerbs':this.quiz.completedVerbs, 'score':this.quiz.score}));
+                        break;
+                    case 'study':
+                        el.empty().append(can.view('appView', {'quiz':this.quiz, 'tenses':Verb.validTenses, 'updateTenseList': function() { self.updateTenseList(); }}));
+                        break;
+                }
+            },
+
+            newPrompt: function() {
+                this.quiz.nextPrompt();
+                $('#answer').val('').focus();
+                $('.feedback').remove();
+            },
+
+            'updateTenseList': function() {
+                var newTenses = [];
+                $(':checked', this.element).each(function(index, value) {
+                    newTenses.push($(value).attr('data-tense-name'));
+                });
+                this.quiz.attr('tenses', newTenses);
+                this.newPrompt();
+            },
+
+            'button.start click': function(el, e) {
+                var self = this, params;
+
+                e.preventDefault();
+                params = !$(e.target).hasClass('all') ? {'irregular':true} : {};
+
+                Verb.findAll(params, function(verbs){
+                    self.quiz = new Quiz(verbs, Verb.validTenses, Verb.validSubjects);
+                    can.route.attr({'screen':'study'});
+                });
+            },
+
+            'submit': function(el, event) {
+                var givenAnswer = $('#answer').val(), 
+                    self = this, 
+                    submit = $('input[type=submit]', this.element);
+                event.preventDefault();
+                this.quiz.gradeAnswer(givenAnswer);
+
+                this.element.find('fieldset:first-child').after(
+                    can.view('feedbackView', 
+                        {'correct':this.quiz.currentAnswer==this.quiz.cleanAnswer(givenAnswer, this.quiz.currentSubject), 'answer':this.quiz.currentAnswer}
+                    )
+                );
+
+                var handleKeypress = function(e) {
+                    e.preventDefault();
+
+                    if(self.quiz.done) {
+                        can.route.attr({'screen':'results'});
+                        self.element.unbind("keydown", handleKeypress);
+                    } 
+
+                    else if(!(e.ctrlKey || e.altKey || e.metaKey)) {
+                        self.quiz.recordAnswer(givenAnswer);
+                        self.newPrompt(); 
+                        self.element.unbind("keydown", handleKeypress);
+                    }
+                }
+                this.element.bind("keydown", handleKeypress);
+            }
+        });
+
+        $(function() { new App("#app"); });
+        </script>
+
+        <script id="startScreen" type="text/mustache">
+            <span class="startScreen">
+                <h1>Which Italian verbs would you like to practice conjugating?</h1>
+                <button class="start all">All Verbs</button>
+                <button class="start">Irregulars</button>
+                <small style="display:block; text-align:right; margin-top:.5em;">Powered by <abbr title="Conjugator of Italian Verbs by Ethan and Margaret">CIVEM</abbr></small>
+            </span>
+        </script>
+        <script id="resultsView" type="text/mustache">
+            <h1>Results (You scored {{score}}%)...</h1>
+            <ol>
+            {{#completedVerbs}}
+                <li>
+                    {{#if correct}} 
+                        <span class="correct" style="color:black;">{{answer}}</span> 
+                    {{else}} 
+                        <span class="incorrect">You said &ldquo;{{response}}&rdquo; but the correct response was &ldquo;{{answer}}&rdquo;</span>
+                    {{/if}}
+                </li>
+            {{/completedVerbs}}
+            </ol>
+        </script>
+        <script id="appView" type="text/mustache">
+            <p>Conjugate <i>{{ quiz.adaptedDefinition }}</i> for the subject <i>{{ quiz.enSubjectName }}</i> in the <i>{{ quiz.currentTense }}</i></p>
+            <form>
+            <fieldset id="submission">
+                <input id="answer" placeholder="Enter correct conjugation..." />
+                <input type="submit" value="Submit" />
+            </fieldset>
+            <ol id="score">
+                <li><span>{{ quiz.pointsScored }}</span>/<span id="total">{{ quiz.possiblePoints }}</span></li>
+                <li>{{#if quiz.possiblePoints}} {{ quiz.score }}% {{else}} 0 {{/quiz.possiblePoints}}</li>
+            </ol>
+            <fieldset id="tenses">
+                <label>Test the... </label>
+                {{#tenses}}
+                    <label can-click="updateTenseList"><input type="checkbox" checked="checked" data-tense-name="{{.}}" /> {{titleCase .}}</label>
+                {{/tenses}}
+            </fieldset>
+            </form>
+        </script>
+        <script id="feedbackView" type="text/mustache">
+            <span class="feedback">
+                {{#if correct}}<span class="correct">Correct!</span>{{else}}<span class="incorrect">Correct answer: {{ answer }}</span>{{/correct}}
+                <br/><small style="font-weight:normal;">Press any key to continue.</small>
+            </span>
+        </script>
+        <style>
+            
+        </style>
+    </head>
+    <body>
+        <div id="app">
+        </div>
+    </body>
+</html>

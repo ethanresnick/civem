@@ -1,0 +1,143 @@
+body, ol, p, h1, fieldset {
+    margin:0; 
+    font-family: 'Helvetica Neue', Arial, Helvetica;
+    padding:0;    
+    border: 0;
+}
+
+html {
+    background: hsl(36, 31%, 94%);
+}
+
+p {
+    margin-bottom: .25em;
+}
+
+h1 {
+    line-height: 1.1em;
+    margin-bottom: .6em;
+}
+
+i {
+    font-family: Georgia;
+    font-weight: bold;
+}
+
+li {
+    margin-bottom: .75em;
+    list-style: decimal inside;
+}
+
+
+#app {
+    width:65%;
+    max-width: 620px;
+    margin-top:20%;
+    margin-left:auto;
+    margin-right: auto;
+    background: white;
+    box-shadow: 2px 2px 12px hsla(0, 0%, 0%, 0.1),1px 1px 4px hsla(0, 0%, 0%, 0.12);
+    border-radius: 2px;
+    position: relative;
+    padding:8px 12px 8px;
+    overflow: auto;
+}
+
+#submission {
+    margin-bottom: 1.5em;
+}
+
+.feedback {
+    display: block;
+    font-weight: bold;
+    position: relative;
+    top:-.75em;
+    margin-bottom: .25em;
+}
+
+    .correct {
+        color:green;
+    }
+
+    .incorrect {
+        color: red;
+    }
+
+#answer {
+    min-width: 320px;
+}
+
+#tenses {
+    float: right;
+}
+
+#score {
+    float:left;
+}
+
+    #score li {
+        display: inline-block;
+        margin-right:10px;
+        list-style: none;
+        margin-bottom:0;
+    }
+
+@media (max-width: 930px) {
+	#app {
+		width: 75%;
+	}
+}
+
+@media (max-width: 800px) {
+    #app {
+        width: 85%;
+    }
+}
+
+@media (max-width: 710px) {
+    #app {
+        width: 90%;
+    }
+}
+
+@media (max-width: 670px) {
+    #app {
+        width: 95%;
+    }
+}
+
+@media (max-width:615px) {
+    #app {
+        width:auto;
+        padding-top:10px;
+        margin-top:0;
+    }
+    #tenses {
+        padding-top:.5em;
+        clear: left;
+        float: none;
+    }
+}
+
+@media(max-width:445px) {
+    #answer {
+        width:80%;
+        min-width: 0;
+    }
+}
+
+@media (max-width:545px) {
+    #tenses label:first-child {
+        display: block;
+    }       
+
+    #tenses {
+        padding-top: 1em;
+    }
+}
+
+@media (max-width:470px) {
+    #tenses label {
+        display: block;
+    }
+}
