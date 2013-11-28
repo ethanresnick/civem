@@ -76,7 +76,7 @@
                 }
             },
 
-            newPrompt: function() {
+            showNewPrompt: function() {
                 this.quiz.nextPrompt();
                 $('#answer').val('').focus();
                 $('.feedback').remove();
@@ -91,7 +91,7 @@
 
                     self.quiz[checked ? 'enableTense' : 'disableTense'](tense);
                 });
-                this.newPrompt();
+                this.showNewPrompt();
             },
 
             'showResultsScreen': function() {
@@ -131,7 +131,7 @@
 
                     else if(!(e.ctrlKey || e.altKey || e.metaKey)) {
                         self.quiz.recordAnswer(givenAnswer);
-                        self.newPrompt(); 
+                        self.showNewPrompt(); 
                         self.element.unbind("keydown", handleKeypress);
                     }
                 }
