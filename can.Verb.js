@@ -1,6 +1,17 @@
 var Verb = can.Model.extend({
-    validSubjects: ['io', 'tu', 'lui', 'noi', 'voi', 'loro'],
-    validTenses: ['presente', 'passato prossimo', 'imperfetto', 'imperativo'],
+    validTenseSubjectsMap: (function() {
+        var subjects = ['io', 'tu', 'lui', 'noi', 'voi', 'loro'],
+            tenses = ['presente', 'passato prossimo', 'imperfetto', 'imperativo'],
+            res = {},
+            subjectsCopy;
+
+            for(var i = 0, len = tenses.length; i < len; i++) {
+                subjectsCopy = subjects.slice(0);
+                res[tenses[i]] = (tenses[i]=='imperativo') ? subjectsCopy.splice(0, 1) : subjectsCopy;
+            }
+
+        return res;
+    }()),
     reflexivePronouns: {'io':'mi', 'tu':'ti', 'lui':'si', 'noi':'ci', 'voi':'vi', 'loro':'si'},
     conjugatorData: {
         irregularPastParticiples: {}, //loaded dynamically from quizlet
@@ -162,13 +173,15 @@ var Verb = can.Model.extend({
         this.type = this.isReflexive || this.isCi ? (this.infinitive.slice(-4, -2)+'e') : this.infinitive.slice(-3);
     },
 
-    'conjugate': function(subject, tense) {                    
-        if(Verb.validSubjects.indexOf(subject)===-1) {
-            throw new Error("Invalid subject. Subject must be one of: " + validSubjects.concat());
+    'conjugate': function(subject, tense) {    
+        var tenseMap = Verb.validTenseSubjectsMap;     
+
+        if(tenseMap[tense]===undefined) {
+            throw new Error("Invalid tense. Tense must be one of: " + Object.keys(tenseMap).join(', ') + '.');
         }
-            
-        if(Verb.validTenses.indexOf(tense)===-1) {
-            throw new Error("Invalid tense. Tense must be one of: " + Object.keys(conjugators).concat());
+
+        if(tenseMap[tense].indexOf(subject)===-1) {
+            throw new Error("Invalid subject for the tense: " + tense + ". Subject must be one of: " + tenseMap[tense].join(', ') + '.');
         }
             
         return Verb.conjugators[tense](subject, this.infinitive, this.type, this.root, this.isReflexive);
