@@ -103,6 +103,19 @@
                 }
                 this.element.bind("keydown", handleKeypress);
             }
+
+            /*
+            storeQuizAsString: function() {
+                function obfuscate(string) {
+                    return Array.prototype.map.call(string, function(val, key) { return String.fromCharCode(val.charCodeAt(0)+key); }).join("");
+                }
+
+                //need to capture past answers, past right answers, remaining verbs, score, tenses
+                var remainingVerbsString = .join(),
+                    completedVerbsString = this.completedVerbs.map(function(val) { return obfuscate(val.answer)+':'+obfuscate(val.response); });
+
+                return [remainingVerbsString, this.pointsScored, this.possiblePoints, completedVerbsString].join('=');
+            },*/
         });
 
         $(function() { new App("#app"); });
