@@ -164,6 +164,14 @@ var Verb = can.Model.extend({
             deferred.resolve(params.irregular ? irregulars : data[0].terms);
         });
         return deferred;
+    },
+
+    findByIds: function(ids, callback) {
+        return this.findAll({}).then(function(verbs) {
+            return verbs.filter(function(verb) {
+                return ids.indexOf(verb.id)!==-1;
+            });
+        }).done(callback);
     }
 }, {
     init: function(attributes) {
