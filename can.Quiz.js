@@ -71,7 +71,6 @@ var Quiz = can.Model.extend({
             this.attr('adaptedDefinition', Quiz.adaptDefinitionString(this.currentVerb.definition, this.currentSubject));
 
             this.remainingVerbs.splice(index, 1);
-            if(this.remainingVerbs.length==0) { this.attr('done', true); }
         }
     },
 
@@ -97,6 +96,7 @@ var Quiz = can.Model.extend({
         var cleanAnswer = this.cleanAnswer(answer);
         this.completedVerbs.push({'verb':this.currentVerb, 'answer': this.currentAnswer, 'response': cleanAnswer, 'correct':this.currentAnswer==cleanAnswer});
         this.attr('currentVerb', undefined);
+        if(this.remainingVerbs.length==0) { this.attr('done', true); }
     },
 
     /* Gets the root taking into account the current tense and subject and isReflexive */
