@@ -7,7 +7,7 @@ var Verb = can.Model.extend({
 
             for(var i = 0, len = tenses.length; i < len; i++) {
                 subjectsCopy = subjects.slice(0);
-                if(tenses[i]=='imperativo') { subjectsCopy.splice(0, 1); }
+                if(tenses[i]=='imperativo') { subjectsCopy = ['tu', 'lui', 'noi', 'voi']; }
                 res[tenses[i]] = subjectsCopy;
             }
 
