@@ -16,30 +16,63 @@
         <script>
         var App = can.Control.extend({
             init: function(el) {
+                can.route(':screen/:set');
                 can.route(':screen');
                 can.route.ready();
-                can.route.attr('screen','start');
+
+                if(!can.route.attr('screen')) {
+                    can.route.attr({'screen':'start'}, true);
+                }
+            },
+
+            ':screen/:set route': function(data) {
+                if(data.screen === 'study') {
+                    this.showQuiz(can.route.attr('set'));
+                }
+                else {
+                    can.route.removeAttr('set');
+                }
             },
 
             ':screen route': function(data) {
-                var el = this.element, self = this;
-                switch(data.screen) {
-                    case 'start':
-                        el.empty().append(can.view('startScreen'));
-                        break;
-                    case 'results':
-                        el.empty().append(can.view('resultsView', {
-                            'completedVerbs': this.quiz.completedVerbs, 
-                            'score': this.quiz.score
-                        }));
-                        break;
-                    case 'study':
-                        el.empty().append(can.view('appView', {
-                            'quiz':this.quiz, 
-                            'tenses': Object.keys(Verb.validTenseSubjectsMap), 
-                            'updateTenseList': function() { self.updateTenseList(); }
-                        }));
-                        break;
+                if(data.screen=='start') {
+                    this.showStartScreen();
+                }
+                else if(data.screen == 'results' && this.quiz) {
+                    this.showResultsScreen();
+                }
+                else {
+                    can.route.attr('screen', 'start');
+                }            
+            },
+
+            'showStartScreen': function() {
+                this.element.empty().append(can.view('startScreen'));
+            },
+
+            'showQuiz': function(setString) {
+                var el = this.element, self = this, params;
+
+                if(setString=='all' || setString=='irregulars') {
+
+                    params = (setString=='irregulars') ? {'irregular':true} : {}; 
+
+                    Verb.findAll(params, function(verbs){
+                        self.quiz = new Quiz(verbs, $.extend({}, Verb.validTenseSubjectsMap));
+                        start();
+                    });            
+                }
+
+                else {
+                    //we need to find a custom set of verbs and build the quiz that way.
+                }
+
+                function start() {
+                    el.empty().append(can.view('appView', {
+                        'quiz':self.quiz, 
+                        'tenses': Object.keys(Verb.validTenseSubjectsMap), 
+                        'updateTenseList': function() { self.updateTenseList(); }
+                    }));
                 }
             },
 
@@ -61,16 +94,17 @@
                 this.newPrompt();
             },
 
+            'showResultsScreen': function() {
+                this.element.empty().append(can.view('resultsView', {
+                    'completedVerbs': this.quiz.completedVerbs, 
+                    'score': this.quiz.score
+                }));
+            },
+
             'button.start click': function(el, e) {
                 var self = this, params;
-
                 e.preventDefault();
-                params = !$(e.target).hasClass('all') ? {'irregular':true} : {};
-
-                Verb.findAll(params, function(verbs){
-                    self.quiz = new Quiz(verbs, $.extend({}, Verb.validTenseSubjectsMap));
-                    can.route.attr({'screen':'study'});
-                });
+                can.route.attr({'screen':'study', 'set':!$(e.target).hasClass('all') ? 'irregulars' : 'all'}, true);
             },
 
             'submit': function(el, event) {
@@ -91,7 +125,7 @@
                     e.preventDefault();
 
                     if(self.quiz.done) {
-                        can.route.attr({'screen':'results'});
+                        can.route.attr({'screen':'results'}, true);
                         self.element.unbind("keydown", handleKeypress);
                     } 
 

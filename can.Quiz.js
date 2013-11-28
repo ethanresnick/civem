@@ -135,10 +135,5 @@ var Quiz = can.Model.extend({
 
     randomSubject: function(tense) {
         return can.fixture.rand(this.tenseMap[tense], 1)[0];
-    },
-
-        }
-
     }
-
 });
