@@ -64,7 +64,10 @@
                 }
 
                 else {
-                    //we need to find a custom set of verbs and build the quiz that way.
+                    var test = Verb.findByIds(setString.split(',').map(function(v) { return v*1; }), function(verbs) {
+                        self.quiz = new Quiz(verbs, $.extend({}, Verb.validTenseSubjectsMap));
+                        start();
+                    });
                 }
 
                 function start() {
@@ -97,7 +100,8 @@
             'showResultsScreen': function() {
                 this.element.empty().append(can.view('resultsView', {
                     'completedVerbs': this.quiz.completedVerbs, 
-                    'score': this.quiz.score
+                    'score': this.quiz.score,
+                    'missedVerbsUrl': can.route.url({'screen':'study', 'set':this.getMissedVerbString()})
                 }));
             },
 
@@ -120,6 +124,8 @@
                         'answer':this.quiz.currentAnswer
                     })
                 );
+                
+                self.quiz.recordAnswer(givenAnswer);
 
                 var handleKeypress = function(e) {
                     e.preventDefault();
@@ -130,26 +136,27 @@
                     } 
 
                     else if(!(e.ctrlKey || e.altKey || e.metaKey)) {
-                        self.quiz.recordAnswer(givenAnswer);
                         self.showNewPrompt(); 
                         self.element.unbind("keydown", handleKeypress);
                     }
                 }
                 this.element.bind("keydown", handleKeypress);
-            }
+            },
 
-            /*
-            storeQuizAsString: function() {
+            getMissedVerbString: function() {
+                return this.quiz.completedVerbs.filter(function(val) { return !val.correct; }).map(function(val) { return val.verb.id; }).join();
+                /* AN OLD APPROACH FOR RETAINING WHOLE QUIZ STATES
                 function obfuscate(string) {
                     return Array.prototype.map.call(string, function(val, key) { return String.fromCharCode(val.charCodeAt(0)+key); }).join("");
                 }
-
                 //need to capture past answers, past right answers, remaining verbs, score, tenses
                 var remainingVerbsString = .join(),
                     completedVerbsString = this.completedVerbs.map(function(val) { return obfuscate(val.answer)+':'+obfuscate(val.response); });
 
                 return [remainingVerbsString, this.pointsScored, this.possiblePoints, completedVerbsString].join('=');
-            },*/
+                */
+
+            },
         });
 
         $(function() { new App("#app"); });
@@ -175,6 +182,7 @@
                     {{/if}}
                 </li>
             {{/completedVerbs}}
+            <a href="{{ missedVerbsUrl }}">Start Over With Missed Words</a>
             </ol>
         </script>
         <script id="appView" type="text/mustache">
