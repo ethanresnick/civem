@@ -7,7 +7,8 @@ var Verb = can.Model.extend({
 
             for(var i = 0, len = tenses.length; i < len; i++) {
                 subjectsCopy = subjects.slice(0);
-                res[tenses[i]] = (tenses[i]=='imperativo') ? subjectsCopy.splice(0, 1) : subjectsCopy;
+                if(tenses[i]=='imperativo') { subjectsCopy.splice(0, 1); }
+                res[tenses[i]] = subjectsCopy;
             }
 
         return res;
