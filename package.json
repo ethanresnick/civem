@@ -1,0 +1,23 @@
+{
+  "name": "civem",
+  "title": "CIVEM",
+  "description": "Practice conjugating Italian Verbs",
+  "version": "1.0.0",
+  "author": {
+    "name": "Ethan Resnick",
+    "url": "http://www.ethanresnick.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ethanresnick/civem/civem.git"
+  },
+  "keywords": ["italian", "practice", "study", "verbs", "foreign language", "conjugate"],
+  "bugs": "https://github.com/ethanresnick/civem/issues",
+  "dependencies": {},
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-contrib-jshint": "~0.6.3",
+    "grunt-contrib-nodeunit": "~0.2.0",
+    "grunt-contrib-uglify": "~0.2.2"
+  }
+}
