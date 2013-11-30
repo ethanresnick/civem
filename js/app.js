@@ -9,9 +9,6 @@ requirejs.config({
         J50Npi: 'J50Npi.min'
     },
     shim: {
-        'J50Npi': {
-            exports: 'J50Npi'
-        },
         'app/helpers/mustache': ['can']
     }
 });

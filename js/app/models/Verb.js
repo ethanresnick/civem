@@ -1,4 +1,4 @@
-define(["app/can", "J50Npi"], function(can, J50Npi) {
+define(["jquery", "app/can"], function($, can) {
     var Verb = can.Model.extend({
         validTenseSubjectsMap: (function() {
             var subjects = ['io', 'tu', 'lui', 'noi', 'voi', 'loro'],
@@ -133,7 +133,7 @@ define(["app/can", "J50Npi"], function(can, J50Npi) {
             var setList = "26276551,27363215";
             var irregulars = [];
 
-            J50Npi.getJSON("https://api.quizlet.com/2.0/sets?set_ids=" + setList + "&client_id=AEgzk2BXWu", {}, function(data) { 
+            $.getJSON("https://api.quizlet.com/2.0/sets?set_ids=" + setList + "&client_id=AEgzk2BXWu&callback=?", function(data) { 
                 $.each(data[1].terms, function(index, obj) {
                     Verb.conjugatorData.irregularPastParticiples[obj.definition.slice(0,-5)] = obj.term;
                 });
