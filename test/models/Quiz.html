@@ -1,0 +1,136 @@
+<html>
+	<head>
+		<script src="../libs/qunit.js"></script>
+		<script src="../libs/sinon.js"></script>
+		<script src="../libs/require.js"></script>
+		<script>
+			// Defer Qunit so RequireJS can work its magic and resolve all modules.
+    		QUnit.config.autostart = false;
+
+			require.config({
+			    baseUrl: "../../src/js/lib",
+			    paths: {
+			        "app": "../app",
+			        "Squire": "../../../node_modules/squirejs/src/Squire"
+			    }
+			});
+
+			require(['jquery', 'Squire'], function($, Squire) {
+				var squire = new Squire();
+
+				squire.require(["app/models/Quiz"], function(Quiz) {
+					QUnit.start();
+
+
+					//make a quiz that each test can access
+					//setup will replace this with a new instance on each run
+					var quiz;
+
+					module("Test Quiz", {
+						setup: function() {
+							var conjugator = sinon.stub().returns("conjugated!"),
+								verb  = {conjugate: conjugator, root: "conjug"},
+								verbs = [$.extend({}, verb), $.extend({}, verb), $.extend({}, verb), $.extend({}, verb)],
+								tenseMap = {'presente':['io', 'tu'], 'imperfetto':['loro', 'noi']};
+
+								quiz = new Quiz(verbs, tenseMap);
+						}
+					});
+
+					test("Instatiating a Quiz sets up the initial state", function() {
+
+						equal(quiz.completedVerbs().length, 0);
+
+						ok(quiz.currentVerb);
+
+						equal(quiz.currentAnswer, "conjugated!");
+						ok(quiz.currentVerb.conjugate.calledOnce);
+
+						equal(quiz.remainingVerbs().length, 3); //because 1 is picked as the current verb
+
+						equal(quiz.score, undefined);
+					});
+
+					test("Next prompt gets a random tense and subject", function() {
+						var randomTense = sinon.spy(quiz, "randomTense"),
+							randomSubject = sinon.spy(quiz, "randomSubject");
+
+						quiz.nextPrompt();
+
+						equal(quiz.currentTense, randomTense.returnValues[0]);
+						equal(quiz.currentSubject, randomSubject.returnValues[0]);
+					});
+
+					test("Next prompt moves onto the next verb", function() {
+						var remainingCount = quiz.remainingVerbs().length,
+							currentVerb    = quiz.currentVerb,
+							completedVerbs = quiz.completedVerbs();
+
+						quiz.nextPrompt();
+
+						//the current verb changes and the remainingVerbs goes down by 1,
+						//with the old currentVerb having been removed from it.
+						//but completedVerbs doesn't change (b/c the answer's not recorded).
+						notEqual(quiz.currentVerb, currentVerb);
+						ok(quiz.remainingVerbs().indexOf(currentVerb)===-1);
+						equal(quiz.remainingVerbs().length, remainingCount-1);
+						equal(completedVerbs.length, quiz.completedVerbs().length);
+					});
+
+					test("Quiz.cleanAnswer removes subjects", function() {
+						var results = [
+							["io", "io ho avuto", "ho avuto"],
+							["noi", "noi ci siamo andati", "ci siamo andati"],
+							["loro", "loro hanno fatto", "hanno fatto"]
+						];
+
+						results.forEach(function(result) {
+							equal(Quiz.cleanAnswer(result[1], result[0]), result[2]);
+						});
+					});
+
+					test("Quiz.cleanAnswer lowercases text", function() {
+						equal(Quiz.cleanAnswer("JLJ0IJ", "io"), "jlj0ij");
+					});
+
+					test("Quiz.subjectNameToEnglish rejects invalid subjects", function() {
+						throws(function() { Quiz.subjectNameToEnglish("bob"); });
+					});
+
+					test("Recording an answer updates the score", function() {
+						var score = quiz.score,
+							points = quiz.pointsScored,
+							possiblePoints = quiz.possiblePoints;
+
+						quiz.recordAnswer("conjugated!");
+
+						notEqual(score, quiz.score);
+						notEqual(points, quiz.pointsScored);
+						ok(quiz.possiblePoints > possiblePoints);
+					});
+
+					test("Recording an answer updates the completedVerbs", function() {
+						var completed = quiz.completedVerbs();
+
+						quiz.recordAnswer("bob");
+
+						equal(completed.length + 1, quiz.completedVerbs().length);
+					});
+
+					test("Recording the last answer marks the test done", 0, function() {});
+
+					test("Grading the answer takes into account root matching", 0, function () {});
+
+					test("Grading the answer uses the answer's cleaned form", 0, function() {});
+
+					test("Disabled tenses are excluded from getRandomTense", 0, function() {});
+
+					test("Irrelevant subjects are excluded from getRandomSubject", 0, function() {});
+				});
+
+			});
+  		</script>
+	</head>
+	<body>
+	</body>
+</html>
