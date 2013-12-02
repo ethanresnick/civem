@@ -98,11 +98,11 @@ define(["app/can"], function(can) {
         },
 
         remainingVerbs: function() {
-            return this._remainingVerbs;
+            return this._remainingVerbs.slice(0);
         },
 
         completedVerbs: function() {
-            return this._completedVerbs;
+            return this._completedVerbs.slice(0);
         },
 
         missedVerbs: function() {
