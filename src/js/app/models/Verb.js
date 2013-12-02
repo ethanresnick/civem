@@ -20,7 +20,7 @@ define(["jquery", "app/can"], function($, can) {
             essereVerbsPassatoProssimo: [
                 'partire', 'andare', 'uscire', 'rimanere', 'tornare', 'stare', 'entrare', 
                 'arrivare', 'restare', 'venire', 'ritornare', 'salire', 'scendere',
-                'nascere', 'crescere', 'diventare', 'morire', 'essere', 'cadere'
+                'nascere', 'crescere', 'diventare', 'morire', 'essere', 'cadere', 'esistere'
             ],
             irregularPresentVerbs: {
                 'andare': {'io': 'vado', 'tu': 'vai', 'lui': 'va', 'loro':'vanno'},
@@ -130,10 +130,19 @@ define(["jquery", "app/can"], function($, can) {
 
         'findAll': function(params) {
             var deferred = jQuery.Deferred();
-            var setList = "26276551,27363215";
+            var setList = "26276551,27363215,31499674";
             var irregulars = [];
 
             $.getJSON("https://api.quizlet.com/2.0/sets?set_ids=" + setList + "&client_id=AEgzk2BXWu&callback=?", function(data) { 
+
+                $.each(data[2].terms, function(index, term) {
+                    term.infinitive = term.term;
+                    term.irregular = true;
+                    delete term.term;
+
+                    irregulars.push(term);
+                });
+
                 $.each(data[1].terms, function(index, obj) {
                     Verb.conjugatorData.irregularPastParticiples[obj.definition.slice(0,-5)] = obj.term;
                 });
@@ -162,7 +171,7 @@ define(["jquery", "app/can"], function($, can) {
                     }
                 });
 
-                deferred.resolve(params.irregular ? irregulars : data[0].terms);
+                deferred.resolve(params.irregular ? irregulars : data[0].terms.concat(data[2].terms));
             });
             return deferred;
         },
