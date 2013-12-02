@@ -1,3 +1,4 @@
+
 'use strict';
 
 module.exports = function(grunt) {
@@ -41,18 +42,19 @@ module.exports = function(grunt) {
             dest: 'build/css',
             ext: '.min.css'
           }
+        },
+
+        qunit: {
+            all: ['test/*.html', 'test/**/*.html']
         }
     });
 
     grunt.loadNpmTasks('grunt-contrib-requirejs');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
+    grunt.loadNpmTasks('grunt-contrib-qunit');
 
-
-    grunt.registerTask('default', ['requirejs' /*
-        'jshint',
-        'test',
-        'build'*/
-    ]);
+    grunt.registerTask('test', ['qunit']);
+    grunt.registerTask('default', [/* jshint, */ 'test', 'requirejs' /* build */]);
 };
   /*"main": "dist/jquery.js",*/
      /*
