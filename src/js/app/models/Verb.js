@@ -168,10 +168,12 @@ define(["jquery", "app/can"], function($, can) {
         },
 
         findByIds: function(ids, callback) {
-            return this.findAll({}).then(function(verbs) {
-                return verbs.filter(function(verb) {
-                    return ids.indexOf(verb.id)!==-1;
+            var res = new Verb.List([]);
+            return this.findAll({}).then(function(verbs) { 
+                verbs.each(function(verb) {
+                   if(ids.indexOf(verb.id)!==-1) { res.push(verb); } 
                 });
+                return res;
             }).done(callback);
         }
     }, {
