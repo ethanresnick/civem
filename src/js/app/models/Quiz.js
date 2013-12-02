@@ -139,6 +139,12 @@ define(["app/can"], function(can) {
                 //adding a disabled prop on the subjects array
                 //is a bit awkward, but whatever. it's easy.
                 this.tenseMap[tense].attr('disabled', true);
+
+                if(this.currentTense == tense) {
+                    this.attr('currentTense', this.randomTense());
+                    this.attr('currentSubject', this.randomSubject(this.currentTense));
+                    this.attr('currentAnswer', this.currentVerb.conjugate(this.currentSubject, this.currentTense));
+                }
             }
         },
 

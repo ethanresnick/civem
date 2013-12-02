@@ -92,7 +92,7 @@ define(["app/can", "app/models/Verb", "app/models/Quiz"], function(can, Verb, Qu
 
                 self.quiz[checked ? 'enableTense' : 'disableTense'](tense);
             });
-            this.showNewPrompt();
+            $('#answer').val('').focus();
         },
 
         'showResultsScreen': function() {
