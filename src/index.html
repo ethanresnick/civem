@@ -29,23 +29,28 @@
             </ol>
         </script>
         <script id="appView" type="text/mustache">
-            <p>Conjugate <i>{{ quiz.adaptedDefinition }}</i> for the subject <i>{{ quiz.enSubjectName }}</i> in the <i>{{ quiz.currentTense }}</i></p>
-            <form>
-            <fieldset id="submission">
-                <input id="answer" placeholder="Enter correct conjugation..." />
-                <input type="submit" value="Submit" />
-            </fieldset>
-            <ol id="score">
-                <li><span>{{ quiz.pointsScored }}</span>/<span id="total">{{ quiz.possiblePoints }}</span></li>
-                <li>{{#if quiz.possiblePoints}} {{ quiz.score }}% {{else}} 0 {{/quiz.possiblePoints}}</li>
-            </ol>
-            <fieldset id="tenses">
-                <label>Test the... </label>
-                {{#tenses}}
-                    <label can-click="updateTenseList"><input type="checkbox" checked="checked" data-tense-name="{{.}}" /> {{titleCase .}}</label>
-                {{/tenses}}
-            </fieldset>
-            </form>
+            {{#if quiz}}
+                <p>Conjugate <i>{{ quiz.adaptedDefinition }}</i> for the subject <i>{{ quiz.enSubjectName }}</i> in the <i>{{ quiz.currentTense }}</i></p>
+                <form>
+                <fieldset id="submission">
+                    <input id="answer" placeholder="Enter correct conjugation..." />
+                    <input type="submit" value="Submit" />
+                </fieldset>
+                <ol id="score">
+                    <li><span>{{ quiz.pointsScored }}</span>/<span id="total">{{ quiz.possiblePoints }}</span></li>
+                    <li>{{#if quiz.possiblePoints}} {{ quiz.score }}% {{else}} 0 {{/quiz.possiblePoints}}</li>
+                </ol>
+                <fieldset id="tenses">
+                    <label>Test the... </label>
+                    {{#tenses}}
+                        <label can-click="updateTenseList"><input type="checkbox" checked="checked" data-tense-name="{{.}}" /> {{titleCase .}}</label>
+                    {{/tenses}}
+                </fieldset>
+                </form>
+            {{else}}
+                <h1>No verbs to study.</h1>
+                <p>Any words you may have requested were not found in CIVEM's database.</p>
+            {{/if}}
         </script>
         <script id="feedbackView" type="text/mustache">
             <span class="feedback">
