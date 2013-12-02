@@ -36,7 +36,11 @@ define(["app/can", "app/models/Verb", "app/models/Quiz"], function(can, Verb, Qu
         },
 
         'showQuiz': function(setString) {
-            var el = this.element, self = this, params;
+            var el = this.element, 
+                self = this,
+                verbKeys,
+                filterBy,
+                params;
 
             if(setString=='all' || setString=='irregulars') {
 
@@ -49,8 +53,17 @@ define(["app/can", "app/models/Verb", "app/models/Quiz"], function(can, Verb, Qu
             }
 
             else {
-                var test = Verb.findByIds(setString.split(',').map(function(v) { return v*1; }), function(verbs) {
-                    self.quiz = new Quiz(verbs, $.extend({}, Verb.validTenseSubjectsMap));
+                verbKeys = setString.split(',');
+                filterBy = (Number.isNaN(Number(verbKeys[0])) ? 'infinitive' : 'id');
+                verbKeys = (filterBy=='id' ? verbKeys.map(function(v) { return v*1; }) : verbKeys);
+
+                Verb.findBy(filterBy, verbKeys, function(verbs) {
+                    try {
+                        self.quiz = new Quiz(verbs, $.extend({}, Verb.validTenseSubjectsMap));   
+                    }
+                    catch (e) {
+                        self.quiz = undefined;
+                    }
                     start();
                 });
             }

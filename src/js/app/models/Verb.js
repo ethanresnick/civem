@@ -167,11 +167,11 @@ define(["jquery", "app/can"], function($, can) {
             return deferred;
         },
 
-        findByIds: function(ids, callback) {
+        findBy: function(property, matches, callback) {
             var res = new Verb.List([]);
             return this.findAll({}).then(function(verbs) { 
                 verbs.each(function(verb) {
-                   if(ids.indexOf(verb.id)!==-1) { res.push(verb); } 
+                    if(matches.indexOf(verb[property])!==-1) { res.push(verb); } 
                 });
                 return res;
             }).done(callback);
