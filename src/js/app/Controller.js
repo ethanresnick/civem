@@ -144,6 +144,8 @@ define(["app/can", "app/models/Verb", "app/models/Quiz"], function(can, Verb, Qu
         getMissedVerbsString: function() {
             return this.quiz.missedVerbs().map(function(val) { return val.verb.id; }).join();
             /* AN OLD APPROACH FOR RETAINING WHOLE QUIZ STATES
+            //this isn't encyrption; it's obfuscation. And that's fine. 
+            //It's like a running-key vigenere where the key is used repeatedly and is in the source code.
             function obfuscate(string) {
                 return Array.prototype.map.call(string, function(val, key) { return String.fromCharCode(val.charCodeAt(0)+key); }).join("");
             }

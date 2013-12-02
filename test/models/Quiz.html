@@ -29,6 +29,8 @@
 					module("Test Quiz", {
 						setup: function() {
 							var conjugator = sinon.stub().returns("conjugated!"),
+								//@todo use a sandbox to actually monitor verb.root
+								//@see http://sinonjs.org/docs/#sinon-sandbox
 								verb  = {conjugate: conjugator, root: "conjug"},
 								verbs = [$.extend({}, verb), $.extend({}, verb), $.extend({}, verb), $.extend({}, verb)],
 								tenseMap = {'presente':['io', 'tu'], 'imperfetto':['loro', 'noi']};
