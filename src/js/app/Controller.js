@@ -84,7 +84,7 @@ define(["app/can", "app/models/Verb", "app/models/Quiz"], function(can, Verb, Qu
 
         'showResultsScreen': function() {
             this.element.empty().append(can.view('resultsView', {
-                'completedVerbs': this.quiz.completedVerbs, 
+                'completedVerbs': this.quiz.completedVerbs(), 
                 'score': this.quiz.score,
                 'missedVerbsUrl': can.route.url({'screen':'study', 'set':this.getMissedVerbsString()})
             }));
@@ -98,7 +98,8 @@ define(["app/can", "app/models/Verb", "app/models/Quiz"], function(can, Verb, Qu
 
         'submit': function(el, event) {
             var givenAnswer = $('#answer').val(), 
-                self = this, 
+                self = this,
+                correct = this.quiz.answerIsCorrect(givenAnswer),
                 submit = $('input[type=submit]', this.element);
             event.preventDefault();
             
@@ -106,7 +107,7 @@ define(["app/can", "app/models/Verb", "app/models/Quiz"], function(can, Verb, Qu
 
             this.element.find('fieldset:first-child').after(
                 can.view('feedbackView', {
-                    'correct':this.quiz.completedVerbs[this.quiz.completedVerbs.length-1].correct, 
+                    'correct':correct, 
                     'answer':this.quiz.currentAnswer
                 })
             );
@@ -128,7 +129,7 @@ define(["app/can", "app/models/Verb", "app/models/Quiz"], function(can, Verb, Qu
         },
 
         getMissedVerbsString: function() {
-            return this.quiz.completedVerbs.filter(function(val) { return !val.correct; }).map(function(val) { return val.verb.id; }).join();
+            return this.quiz.missedVerbs().map(function(val) { return val.verb.id; }).join();
             /* AN OLD APPROACH FOR RETAINING WHOLE QUIZ STATES
             function obfuscate(string) {
                 return Array.prototype.map.call(string, function(val, key) { return String.fromCharCode(val.charCodeAt(0)+key); }).join("");

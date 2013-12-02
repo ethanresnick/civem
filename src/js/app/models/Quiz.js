@@ -57,11 +57,11 @@ define(["app/can"], function(can) {
         }
     }, {
         init: function(verbs, tenseMap) {
-            this.remainingVerbs = verbs || [];
-            this.completedVerbs = [];
+            this._remainingVerbs = verbs || [];
+            this._completedVerbs = [];
+
             this.attr('done', false);
             this.attr('tenseMap', tenseMap);
-
             this.attr('pointsScored', 0);
             this.attr('possiblePoints', 0);
 
@@ -69,34 +69,51 @@ define(["app/can"], function(can) {
         },
 
         nextPrompt: function() {
-            var index = Math.round(Math.random()*(this.remainingVerbs.length-1));
+            var index = Math.round(Math.random()*(this._remainingVerbs.length-1));
 
             if(!this.done) {
-                this.attr('currentVerb', this.remainingVerbs[index]);
+                this.attr('currentVerb', this._remainingVerbs[index]);
                 this.attr('currentTense', this.randomTense());
                 this.attr('currentSubject', this.randomSubject(this.currentTense));
                 this.attr('currentAnswer', this.currentVerb.conjugate(this.currentSubject, this.currentTense));
                 this.attr('enSubjectName', Quiz.subjectNameToEnglish(this.currentSubject));
                 this.attr('adaptedDefinition', Quiz.adaptDefinitionString(this.currentVerb.definition, this.currentSubject));
 
-                this.remainingVerbs.splice(index, 1);
+                this._remainingVerbs.splice(index, 1);
             }
         },
 
         recordAnswer: function(answer) {
-            var pointsEarned = this.getPointsForAnswer(answer);
-            this.attr('possiblePoints', this.possiblePoints+2);
+            var pointsEarned = this.pointsForAnswer(answer);
             this.attr('pointsScored', this.pointsScored + pointsEarned);
+            this.attr('possiblePoints', this.possiblePoints + 2);
             this.attr('score', Math.round(100*this.pointsScored/this.possiblePoints));
-            this.completedVerbs.push({'verb':this.currentVerb, 'answer': this.currentAnswer, 'response': answer, 'correct':pointsEarned==2});
 
-            if(this.remainingVerbs.length==0) { 
+            this._completedVerbs.push({'verb':this.currentVerb, 'answer': this.currentAnswer, 'response': answer, 'correct':this.answerIsCorrect(answer)});
+
+            if(this._remainingVerbs.length==0) { 
                 this.attr('done', true);
                 this.attr('currentVerb', undefined);
             }
         },
 
-        getPointsForAnswer: function(answer) {
+        remainingVerbs: function() {
+            return this._remainingVerbs;
+        },
+
+        completedVerbs: function() {
+            return this._completedVerbs;
+        },
+
+        missedVerbs: function() {
+            return this._completedVerbs.filter(function(val) { return !val.correct; });
+        },
+
+        answerIsCorrect: function(answer) {
+            return this.pointsForAnswer(answer)==2;
+        },
+
+        pointsForAnswer: function(answer) {
             var cleanAnswer = Quiz.cleanAnswer(answer, this.currentSubject);
             var rightRoot = this.getVerbRootFromAnswer(cleanAnswer)==this.currentVerb.root;
             return (this.currentAnswer==cleanAnswer) ? 2 : (rightRoot ? 1 : 0);
