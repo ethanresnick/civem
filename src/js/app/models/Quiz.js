@@ -57,6 +57,10 @@ define(["app/can"], function(can) {
         }
     }, {
         init: function(verbs, tenseMap) {
+            if(verbs.length === 0) {
+                throw new Error("No verbs provided to study.");
+            }
+
             this._remainingVerbs = verbs || [];
             this._completedVerbs = [];
 
