@@ -101,16 +101,15 @@ define(["app/can", "app/models/Verb", "app/models/Quiz"], function(can, Verb, Qu
                 self = this, 
                 submit = $('input[type=submit]', this.element);
             event.preventDefault();
-            this.quiz.gradeAnswer(givenAnswer);
+            
+            this.quiz.recordAnswer(givenAnswer);
 
             this.element.find('fieldset:first-child').after(
                 can.view('feedbackView', {
-                    'correct':this.quiz.currentAnswer==this.quiz.cleanAnswer(givenAnswer, this.quiz.currentSubject), 
+                    'correct':this.quiz.completedVerbs[this.quiz.completedVerbs.length-1].correct, 
                     'answer':this.quiz.currentAnswer
                 })
             );
-            
-            self.quiz.recordAnswer(givenAnswer);
 
             var handleKeypress = function(e) {
                 e.preventDefault();

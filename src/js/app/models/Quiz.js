@@ -46,6 +46,14 @@ define(["app/can"], function(can) {
 
             return newDef; */
             return definition;
+        },
+
+        cleanAnswer: function(answer, subject) {   
+            var cleanAnswer = answer;     
+            if(answer.indexOf(subject+' ')===0) {
+                cleanAnswer = answer.slice(subject.length+1);
+            }
+            return cleanAnswer.toLowerCase();
         }
     }, {
         init: function(verbs, tenseMap) {
@@ -75,29 +83,23 @@ define(["app/can"], function(can) {
             }
         },
 
-        cleanAnswer: function(answer, subject) {   
-            var cleanAnswer = answer;     
-            if(answer.indexOf(subject+' ')===0) {
-                cleanAnswer = answer.slice(subject.length+1);
-            }
-            return cleanAnswer.toLowerCase();
-        },
-
-        gradeAnswer: function(answer) {
-            var cleanAnswer = this.cleanAnswer(answer, this.currentSubject);
-            var rightRoot = this.getVerbRootFromAnswer(cleanAnswer)==this.currentVerb.root;
-            var pointsEarned = (this.currentAnswer==cleanAnswer) ? 2 : (rightRoot ? 1 : 0);
-
+        recordAnswer: function(answer) {
+            var pointsEarned = this.getPointsForAnswer(answer);
             this.attr('possiblePoints', this.possiblePoints+2);
             this.attr('pointsScored', this.pointsScored + pointsEarned);
             this.attr('score', Math.round(100*this.pointsScored/this.possiblePoints));
+            this.completedVerbs.push({'verb':this.currentVerb, 'answer': this.currentAnswer, 'response': answer, 'correct':pointsEarned==2});
+
+            if(this.remainingVerbs.length==0) { 
+                this.attr('done', true);
+                this.attr('currentVerb', undefined);
+            }
         },
 
-        'recordAnswer': function(answer) {
-            var cleanAnswer = this.cleanAnswer(answer);
-            this.completedVerbs.push({'verb':this.currentVerb, 'answer': this.currentAnswer, 'response': cleanAnswer, 'correct':this.currentAnswer==cleanAnswer});
-            this.attr('currentVerb', undefined);
-            if(this.remainingVerbs.length==0) { this.attr('done', true); }
+        getPointsForAnswer: function(answer) {
+            var cleanAnswer = Quiz.cleanAnswer(answer, this.currentSubject);
+            var rightRoot = this.getVerbRootFromAnswer(cleanAnswer)==this.currentVerb.root;
+            return (this.currentAnswer==cleanAnswer) ? 2 : (rightRoot ? 1 : 0);
         },
 
         /* Gets the root taking into account the current tense and subject and isReflexive */
