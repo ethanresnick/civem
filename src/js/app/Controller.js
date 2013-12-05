@@ -54,7 +54,7 @@ define(["app/can", "app/models/Verb", "app/models/Quiz"], function(can, Verb, Qu
 
             else {
                 verbKeys = setString.split(',');
-                filterBy = (Number.isNaN(Number(verbKeys[0])) ? 'infinitive' : 'id');
+                filterBy = (isNaN(Number(verbKeys[0])) ? 'infinitive' : 'id');
                 verbKeys = (filterBy=='id' ? verbKeys.map(function(v) { return v*1; }) : verbKeys);
 
                 Verb.findBy(filterBy, verbKeys, function(verbs) {
