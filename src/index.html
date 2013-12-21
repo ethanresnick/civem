@@ -4,63 +4,6 @@
         <title>Conjugator of Italian Verbs by Ethan and Margaret (aka CIVEM)</title>
         <script data-main="js/app.js" src="js/require.js"></script>
         <link rel="stylesheet" href="css/style.css" />
-
-        <script id="startScreen" type="text/mustache">
-            <span class="startScreen">
-                <h1>Which Italian verbs would you like to practice conjugating?</h1>
-                <button class="start all">All Verbs</button>
-                <button class="start">Irregulars</button>
-                <small style="display:block; text-align:right; margin-top:.5em;">Powered by <abbr title="Conjugator of Italian Verbs by Ethan and Margaret">CIVEM</abbr></small>
-            </span>
-        </script>
-        <script id="resultsView" type="text/mustache">
-            <h1>Results (You scored {{score}}%)...</h1>
-            <ol>
-            {{#completedVerbs}}
-                <li>
-                    {{#if correct}} 
-                        <span class="correct" style="color:black;">{{answer}}</span> 
-                    {{else}} 
-                        <span class="incorrect">You said &ldquo;{{response}}&rdquo; but the correct response was &ldquo;{{answer}}&rdquo;</span>
-                    {{/if}}
-                </li>
-            {{/completedVerbs}}
-            <a href="{{ missedVerbsUrl }}">Start Over With Missed Words</a>
-            </ol>
-        </script>
-        <script id="appView" type="text/mustache">
-            {{#if quiz}}
-                <p>Conjugate <i>{{ quiz.adaptedDefinition }}</i> for the subject <i>{{ quiz.enSubjectName }}</i> in the <i>{{ quiz.currentTense }}</i></p>
-                <form>
-                <fieldset id="submission">
-                    <input id="answer" placeholder="Enter correct conjugation..." />
-                    <input type="submit" value="Submit" />
-                </fieldset>
-                <ol id="score">
-                    <li><span>{{ quiz.pointsScored }}</span>/<span id="total">{{ quiz.possiblePoints }}</span></li>
-                    <li>{{#if quiz.possiblePoints}} {{ quiz.score }}% {{else}} 0 {{/quiz.possiblePoints}}</li>
-                </ol>
-                <fieldset id="tenses">
-                    <label>Test the... </label>
-                    {{#tenses}}
-                        <label can-click="updateTenseList"><input type="checkbox" checked="checked" data-tense-name="{{.}}" /> {{titleCase .}}</label>
-                    {{/tenses}}
-                </fieldset>
-                </form>
-            {{else}}
-                <h1>No verbs to study.</h1>
-                <p>Any words you may have requested were not found in CIVEM's database.</p>
-            {{/if}}
-        </script>
-        <script id="feedbackView" type="text/mustache">
-            <span class="feedback">
-                {{#if correct}}<span class="correct">Correct!</span>{{else}}<span class="incorrect">Correct answer: {{ answer }}</span>{{/correct}}
-                <br/><small style="font-weight:normal;">Press any key to continue.</small>
-            </span>
-        </script>
-        <style>
-            
-        </style>
     </head>
     <body>
         <div id="app">

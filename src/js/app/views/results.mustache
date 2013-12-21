@@ -1,0 +1,13 @@
+<h1>Results (You scored {{score}}%)...</h1>
+<ol>
+{{#completedVerbs}}
+    <li>
+        {{#if correct}} 
+            <span class="correct" style="color:black;">{{answer}}</span> 
+        {{else}} 
+            <span class="incorrect">You said &ldquo;{{response}}&rdquo; but the correct response was &ldquo;{{answer}}&rdquo;</span>
+        {{/if}}
+    </li>
+{{/completedVerbs}}
+<a href="{{ missedVerbsUrl }}">Start Over With Missed Words</a>
+</ol>
