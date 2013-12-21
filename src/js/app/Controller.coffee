@@ -1,5 +1,9 @@
 define(["app/can", "app/models/Verb", "app/models/Quiz"], (can, Verb, Quiz) ->
-	can.Control.extend(
+    # stupid helper function to load templates accounting for the verbose
+    # name that the preloader automatically gives them (and which I can't seem to change)
+    template = (shortName) -> "src_js_app_views_"+shortName+"_mustache"
+
+    can.Control.extend(
         init: (el) ->
             can.route(':screen/:set')
             can.route(':screen')
@@ -26,7 +30,7 @@ define(["app/can", "app/models/Verb", "app/models/Quiz"], (can, Verb, Quiz) ->
                 can.route.attr('screen', 'start')
 
         'showStartScreen': -> 
-            @element.empty().append(can.view('startScreen'))
+            @element.empty().append(can.view(template('start')))
 
         'showQuiz': (setString) ->
             if setString in ['all', 'irregulars']
@@ -53,7 +57,7 @@ define(["app/can", "app/models/Verb", "app/models/Quiz"], (can, Verb, Quiz) ->
                 )
 
             start = =>
-                @element.empty().append(can.view('appView', {
+                @element.empty().append(can.view(template('app'), {
                     'quiz': @quiz, 
                     'tenses': Object.keys(Verb.validTenseSubjectsMap), 
                     'updateTenseList': () => @updateTenseList()
@@ -75,7 +79,7 @@ define(["app/can", "app/models/Verb", "app/models/Quiz"], (can, Verb, Quiz) ->
             $('#answer').val('').focus()
 
         'showResultsScreen': ->
-            @element.empty().append(can.view('resultsView', {
+            @element.empty().append(can.view(template('results'), {
                 'completedVerbs': @quiz.completedVerbs(), 
                 'score': @quiz.score,
                 'missedVerbsUrl': can.route.url({'screen':'study', 'set':@getMissedVerbsString()})
@@ -95,7 +99,7 @@ define(["app/can", "app/models/Verb", "app/models/Quiz"], (can, Verb, Quiz) ->
             @quiz.recordAnswer(givenAnswer);
 
             @element.find('fieldset:first-child').after(
-                can.view('feedbackView', {
+                can.view(template('feedback'), {
                     'correct':correct, 
                     'answer':this.quiz.currentAnswer
                 })

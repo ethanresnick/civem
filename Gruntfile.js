@@ -1,35 +1,92 @@
-
 'use strict';
 
 module.exports = function(grunt) {
 
     grunt.initConfig({
-        requirejs: {
-            compile: {
+        //not a reserved word or anything; 
+        //just an object I'm using to store some paths.
+        settings: {
+            js: 'src/js',
+            app: 'src/js/app',
+            views: 'src/js/app/views',
+            dist: 'build'
+        },
+
+        cancompile: {
+          dist: {
+            src: ['<%= settings.views %>*.mustache', '<%= settings.views %>/**/*.mustache'],
+            out: '<%= settings.dist %>/views.js',
+            wrapper: 'define(["can/view/mustache"], function(can) { {{{content}}} });'
+            //tags: ['editor', 'my-component']
+          }
+        },
+
+        coffee: {
+            dist: {
+                expand: true,
+                cwd: '<%= settings.js %>',
+                src: ['**/*.coffee'],
+                dest: '<%= settings.dist %>/js',
+                ext: '.js'
+            }            
+        },
+
+        copy: {
+            dist: {
+                files: [
+                    {cwd:'<%= settings.js %>', expand: true, flatten:false, src:['**/*.js','*.js'], dest: '<%= settings.dist %>/js'},
+                    {src:'src/index.html', dest: '<%= settings.dist %>/index.html'}
+                ],
                 options: {
-                    appDir: "src",
-                    baseUrl: "js/lib",
-                    mainConfigFile: "src/js/app.js",
-                    dir: "./build",
-                    paths: {
-                        jquery: "empty:"
-                    },
-                    modules: [{
-                        name: "app"
-                    }], 
-                    preserveLicenseComments: false,
-                    done: function(done, output) {
-
-                        var duplicates = require('rjs-build-analysis').duplicates(output);
-
-                        if (duplicates.length > 0) {
-                            grunt.log.subhead('Duplicates found in requirejs build:');
-                            grunt.log.warn(duplicates);
-                            done(new Error('r.js built duplicate modules, please check the excludes option.'));
+                    processContent: function(content, path) {
+                        if(path.slice(-4)!=="html") {
+                            return content;
                         }
 
-                        done();
+                        return (content.replace("style.css", "style.min.css")).replace(/data-main=\".+?\"/g, '').replace("</script>", "</script><script>require(['app']);</script>");
                     }
+                }
+            }
+        },
+
+        requirejs: {
+            dist: {
+                options: {     
+                    /*
+                    I have to pick: do I want almond, which can't load jquery
+                    from the CDN (so I'd have to minify it into the main file)
+                    and loses the caching benefits; or do I want to use the standard
+                    require, which is bigger than almond and takes an extra request
+                    to load the data-main (though that request should be removable).
+                    For now, I'm going with require. 
+                    To switch to almond, uncomment the below.
+                    
+                    almond: true,
+                    wrap: true,
+                    replaceRequireScript: [{
+                         files: ['<%= settings.dist %>/index.html'],
+                         module: 'app',
+                         modulePath: 'app_module'
+                    }],
+                    */
+                    preserveLicenseComments: false,             
+                    paths: {
+                        jquery: "empty:",
+                        "app/views": '../../views'
+                    },
+                    include:["app"],
+                    insertRequire: ['app'],
+                    baseUrl: "<%= settings.dist %>/js/lib",
+                    mainConfigFile: "<%= settings.dist %>/js/app.js",
+                    out: "<%= settings.dist %>/app.js"
+                }
+            }
+        },
+
+        uglify: {
+            dist: {
+                files: {
+                    '<%= settings.dist %>/app.js': ['<%= settings.dist %>/app.js']
                 }
             }
         },
@@ -39,9 +96,17 @@ module.exports = function(grunt) {
             expand: true,
             cwd: 'src/css',
             src: ['*.css', '!*.min.css'],
-            dest: 'build/css',
+            dest: '<%= settings.dist %>/css',
             ext: '.min.css'
           }
+        },
+
+        clean: {
+            compiled: {
+                expand: true,
+                src: ['<%= settings.dist %>/js/*', '!<%= settings.dist %>/js/lib', '<%= settings.dist %>/views.js']
+            },
+            dist: ['<%= settings.dist %>/*']
         },
 
         qunit: {
@@ -49,12 +114,21 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.loadNpmTasks('grunt-contrib-requirejs');
+    grunt.loadNpmTasks('can-compile');
+    grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-coffee');
+    grunt.loadNpmTasks('grunt-requirejs');
+    grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-mkdir');
     grunt.loadNpmTasks('grunt-contrib-qunit');
 
     grunt.registerTask('test', ['qunit']);
-    grunt.registerTask('default', [/* jshint, */ 'test', 'requirejs' /* build */]);
+    grunt.registerTask('compile', ['cancompile', 'coffee']);
+    grunt.registerTask('buildMainJS', ['clean:dist', 'compile', 'copy', 'requirejs', 'uglify', 'clean:compiled']);
+    grunt.registerTask('default', ['buildMainJS', 'cssmin' /* jshint, 'test' */]);
 };
   /*"main": "dist/jquery.js",*/
      /*
