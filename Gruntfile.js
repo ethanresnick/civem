@@ -9,7 +9,8 @@ module.exports = function(grunt) {
             js: 'src/js',
             app: 'src/js/app',
             views: 'src/js/app/views',
-            dist: 'build'
+            dist: 'build',
+            test: 'test'
         },
 
         cancompile: {
@@ -28,7 +29,14 @@ module.exports = function(grunt) {
                 src: ['**/*.coffee'],
                 dest: '<%= settings.dist %>/js',
                 ext: '.js'
-            }            
+            },
+            test: {
+                expand: true,
+                cwd: '<%= settings.test %>/.src',
+                src: ['**/*.coffee'],
+                dest: '<%= settings.test %>/.src',
+                ext: '.js'
+            }
         },
 
         copy: {
@@ -46,6 +54,11 @@ module.exports = function(grunt) {
                         return (content.replace("style.css", "style.min.css")).replace(/data-main=\".+?\"/g, '').replace("</script>", "</script><script>require(['app']);</script>");
                     }
                 }
+            },
+            test: {
+                files: [
+                    {cwd:'<%= settings.js %>', expand: true, flatten:false, src:['**'], dest: '<%= settings.test %>/.src'},
+                ]
             }
         },
 
@@ -92,7 +105,7 @@ module.exports = function(grunt) {
         },
 
         cssmin: {
-          minify: {
+          dist: {
             expand: true,
             cwd: 'src/css',
             src: ['*.css', '!*.min.css'],
@@ -102,11 +115,12 @@ module.exports = function(grunt) {
         },
 
         clean: {
-            compiled: {
+            distCompiled: {
                 expand: true,
                 src: ['<%= settings.dist %>/js/*', '!<%= settings.dist %>/js/lib', '<%= settings.dist %>/views.js']
             },
-            dist: ['<%= settings.dist %>/*']
+            distAll: ['<%= settings.dist %>/*'],
+            test: ['<%= settings.test %>/.src']
         },
 
         qunit: {
@@ -125,12 +139,11 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-mkdir');
     grunt.loadNpmTasks('grunt-contrib-qunit');
 
-    grunt.registerTask('test', ['qunit']);
+    grunt.registerTask('test', ['copy:test', 'coffee:test', 'qunit', 'clean:test']);
     grunt.registerTask('compile', ['cancompile', 'coffee']);
-    grunt.registerTask('buildMainJS', ['clean:dist', 'compile', 'copy', 'requirejs', 'uglify', 'clean:compiled']);
-    grunt.registerTask('default', ['buildMainJS', 'cssmin' /* jshint, 'test' */]);
+    grunt.registerTask('buildMainJS', ['clean:distAll', 'compile', 'copy', 'requirejs', 'uglify', 'clean:distCompiled']);
+    grunt.registerTask('default', ['buildMainJS', 'cssmin', 'test' /* jshint */]);
 };
-  /*"main": "dist/jquery.js",*/
      /*
     "grunt-bower-task": "~0.3.2", 
     "grunt-cli": "~0.1.11",
