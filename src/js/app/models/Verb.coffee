@@ -123,9 +123,11 @@ define ["jquery", "app/can"], ($, can) ->
           delete term.term
 
           irregulars.push term
+          undefined
 
         $.each data[1].terms, (index, obj) ->
           Verb.conjugatorData.irregularPastParticiples[obj.definition.slice(0, -5)] = obj.term
+          undefined
 
         $.each data[0].terms, (index, term) ->
           term.infinitive = term.term
@@ -137,12 +139,14 @@ define ["jquery", "app/can"], ($, can) ->
           #verb as esserci and keep the il sole part to append.
           if term.infinitive.slice(-3) not in ["are", "ere", "ire", "rsi"]
             @infinitive = @infinitive.replace(/(.*)(are|ere|ire|si)\b(.*)$/, "$1$2")
-            
+
           if Verb.conjugatorData.irregularPastParticiples[term.infinitive]? or Verb.conjugatorData.irregularPresentVerbs[term.infinitive]? or Verb.conjugatorData.irregularImperfectVerbs[term.infinitive]? or Verb.conjugatorData.irregularImperativeVerbs[term.infinitive]?
             term.irregular = true
             irregulars.push term
           else
             term.irregular = false
+
+          undefined
 
         deferred.resolve(if params.irregular then irregulars else data[0].terms.concat(data[2].terms))
 
