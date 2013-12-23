@@ -15,7 +15,7 @@ module.exports = function(grunt) {
 
         cancompile: {
           dist: {
-            src: ['<%= settings.views %>*.mustache', '<%= settings.views %>/**/*.mustache'],
+            src: ['<%= settings.views %>/**.mustache'],
             out: '<%= settings.dist %>/views.js',
             wrapper: 'define(["can/view/mustache"], function(can) { {{{content}}} });'
             //tags: ['editor', 'my-component']
@@ -143,26 +143,15 @@ module.exports = function(grunt) {
     grunt.registerTask('compile', ['cancompile', 'coffee']);
     grunt.registerTask('buildMainJS', ['clean:distAll', 'compile', 'copy', 'requirejs', 'uglify', 'clean:distCompiled']);
     grunt.registerTask('default', ['buildMainJS', 'cssmin', 'test' /* jshint */]);
+    grunt.registerTask('watch', []);
 };
      /*
     "grunt-bower-task": "~0.3.2", 
-    "grunt-cli": "~0.1.11",
     "grunt-compare-size": "~0.4.0",
-    "grunt-contrib-jshint": "~0.7.0",
-    "grunt-contrib-uglify": "~0.2.7",
     "grunt-contrib-watch": "~0.5.3",
     "grunt-git-authors": "~1.2.0",
     "grunt-jscs-checker": "~0.2.3",
-    "grunt-jsonlint": "~1.0.1",
     "load-grunt-tasks": "~0.2.0",
     "testswarm": "~1.1.0",
-    "requirejs": "~2.1.9",
-    "which": "~1.0.5" */
-    /*
-  "scripts": {
-    "build": "npm install && grunt",
-
-    "start": "grunt watch",
-    "test": "grunt"
-  }
+    "which": "~1.0.5"
 }*/
