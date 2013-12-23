@@ -30,7 +30,7 @@ define(["app/can", "app/models/Verb", "app/models/Quiz"], (can, Verb, Quiz) ->
                 can.route.attr('screen', 'start')
 
         'showStartScreen': -> 
-            @element.empty().append(can.view(template('start')))
+            @element.empty().append(can.view(template('start'), {}))
 
         'showQuiz': (setString) ->
             if setString in ['all', 'irregulars']
@@ -85,6 +85,8 @@ define(["app/can", "app/models/Verb", "app/models/Quiz"], (can, Verb, Quiz) ->
                 'missedVerbsUrl': can.route.url({'screen':'study', 'set':@getMissedVerbsString()})
             }))
 
+        #Note that this and the submit listener below will remain bound to the controlller
+        #even when the start or prompt screens aren't shown. It's a a bit inelegant, but ok.
         'button.start click': (el, e) ->
             e.preventDefault()
             can.route.attr({'screen':'study', 'set': if not $(e.target).hasClass('all') then 'irregulars' else 'all'}, true)

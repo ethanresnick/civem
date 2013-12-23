@@ -6,6 +6,7 @@ define ["jquery", "app/can"], ($, can) ->
       res = {}
 
       (res[tense] = if tense is "imperativo" then ["tu", "lui", "noi", "voi"] else subjects.slice(0)) for tense in tenses
+      res
     )()
 
     reflexivePronouns: {'io':'mi', 'tu':'ti', 'lui':'si', 'noi':'ci', 'voi':'vi', 'loro':'si'}
@@ -134,7 +135,9 @@ define ["jquery", "app/can"], ($, can) ->
           #@todo, preserve it in another property where necessary, and append
           #that to the end of all conjugated forms, e.g. esserci il sole, store
           #verb as esserci and keep the il sole part to append.
-          @infinitive = @infinitive.replace(/(.*)(are|ere|ire|si)\b(.*)$/, "$1$2") if term.infinitive.slice(-3) in ["are", "ere", "ire", "rsi"]
+          if term.infinitive.slice(-3) not in ["are", "ere", "ire", "rsi"]
+            @infinitive = @infinitive.replace(/(.*)(are|ere|ire|si)\b(.*)$/, "$1$2")
+            
           if Verb.conjugatorData.irregularPastParticiples[term.infinitive]? or Verb.conjugatorData.irregularPresentVerbs[term.infinitive]? or Verb.conjugatorData.irregularImperfectVerbs[term.infinitive]? or Verb.conjugatorData.irregularImperativeVerbs[term.infinitive]?
             term.irregular = true
             irregulars.push term
@@ -161,10 +164,10 @@ define ["jquery", "app/can"], ($, can) ->
 
     conjugate: (subject, tense) ->
       tenseMap = Verb.validTenseSubjectsMap
-      if tenseMap[tense] is undefined
+      if not tenseMap[tense]?
         throw new Error("Invalid tense. Tense must be one of: " + Object.keys(tenseMap).join(", ") + ".")
 
-      if subject in tenseMap[tense]
+      if not subject in tenseMap[tense]
         throw new Error("Invalid subject for the tense: " + tense + ". Subject must be one of: " + tenseMap[tense].join(", ") + ".")
 
       Verb.conjugators[tense] subject, @infinitive, @type, @root, @isReflexive
