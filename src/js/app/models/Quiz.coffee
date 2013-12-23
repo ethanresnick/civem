@@ -9,12 +9,13 @@ define ["app/can"], (can) ->
         voi: "you all"
         loro: "they"
 
-      throw new Error("Invalid subject. Subject must be one of: " + Object.keys(subjectMap).concat())  if subjectMap[subject] is `undefined`
+      if subjectMap[subject] is undefined
+        throw new Error("Invalid subject. Subject must be one of: " + Object.keys(subjectMap).concat())
+
       subjectMap[subject]
 
     adaptDefinitionString: (definition, subject) ->
       
-      #
       #            //remove the "to..." that typically accompanies the infinitive
       #            var newDef = definition.replace(/(^|\; )(to)/g, "$1");
       #
@@ -53,9 +54,10 @@ define ["app/can"], (can) ->
       definition
 
     cleanAnswer: (answer, subject) ->
-      cleanAnswer = answer
-      cleanAnswer = answer.slice(subject.length + 1)  if answer.indexOf(subject + " ") is 0
-      cleanAnswer.toLowerCase()
+      cleanAnswer = answer.toLowerCase()
+      if cleanAnswer.indexOf(subject + " ") is 0
+        cleanAnswer = cleanAnswer.slice(subject.length + 1)
+      cleanAnswer
   ,
     init: (verbs, tenseMap) ->
       throw new Error("No verbs provided to study.")  if verbs.length is 0
@@ -76,7 +78,7 @@ define ["app/can"], (can) ->
         @attr "currentAnswer", @currentVerb.conjugate(@currentSubject, @currentTense)
         @attr "enSubjectName", Quiz.subjectNameToEnglish(@currentSubject)
         @attr "adaptedDefinition", Quiz.adaptDefinitionString(@currentVerb.definition, @currentSubject)
-        @_remainingVerbs.splice index, 1
+        @_remainingVerbs.splice(index, 1)
 
     recordAnswer: (answer) ->
       pointsEarned = @pointsForAnswer(answer)
@@ -91,7 +93,7 @@ define ["app/can"], (can) ->
 
       if @_remainingVerbs.length is 0
         @attr "done", true
-        @attr "currentVerb", `undefined`
+        @attr "currentVerb", undefined
 
     remainingVerbs: ->
       @_remainingVerbs.slice 0
@@ -102,7 +104,6 @@ define ["app/can"], (can) ->
     missedVerbs: ->
       @_completedVerbs.filter (val) ->
         not val.correct
-
 
     answerIsCorrect: (answer) ->
       @pointsForAnswer(answer) is 2
@@ -141,11 +142,11 @@ define ["app/can"], (can) ->
     randomTense: ->
       applicableTenses = can.Map.keys(@tenseMap).filter((tense) ->
         not @tenseMap[tense].disabled
-      , this)
+      , @)
+      applicableTenses = (tense for tense in can.Map.keys(@tenseMap) when not @tenseMap[tense].disabled)
       can.fixture.rand(applicableTenses, 1)[0]
 
     randomSubject: (tense) ->
       can.fixture.rand(@tenseMap[tense], 1)[0]
   )
   Quiz
-
