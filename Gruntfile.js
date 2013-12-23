@@ -72,7 +72,8 @@ module.exports = function(grunt) {
                     require, which is bigger than almond and takes an extra request
                     to load the data-main (though that request should be removable).
                     For now, I'm going with require. 
-                    To switch to almond, uncomment the below.
+                    To switch to almond, uncomment the below and switch to the 
+                    grunt-require plugin in package.json rather than grunt-contrib-require.
                     
                     almond: true,
                     wrap: true,
@@ -87,6 +88,7 @@ module.exports = function(grunt) {
                         jquery: "empty:",
                         "app/views": '../../views'
                     },
+                    optimize: "none",
                     include:["app"],
                     insertRequire: ['app'],
                     baseUrl: "<%= settings.dist %>/js/lib",
@@ -131,7 +133,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('can-compile');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-coffee');
-    grunt.loadNpmTasks('grunt-requirejs');
+    grunt.loadNpmTasks('grunt-contrib-requirejs');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
