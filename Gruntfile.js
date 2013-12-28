@@ -127,6 +127,14 @@ module.exports = function(grunt) {
 
         qunit: {
             all: ['test/*.html', 'test/**/*.html']
+        },
+
+        mkdir: {
+            dist: {
+                options: {
+                    create: ['build']
+                },
+            }
         }
     });
 
@@ -143,7 +151,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask('test', ['copy:test', 'coffee:test', 'qunit', 'clean:test']);
     grunt.registerTask('compile', ['cancompile', 'coffee']);
-    grunt.registerTask('buildMainJS', ['clean:distAll', 'compile', 'copy', 'requirejs', 'uglify', 'clean:distCompiled']);
+    grunt.registerTask('buildMainJS', ['clean:distAll', 'mkdir:dist', 'compile', 'copy', 'requirejs', 'uglify', 'clean:distCompiled']);
     grunt.registerTask('default', ['buildMainJS', 'cssmin', 'test' /* jshint */]);
     grunt.registerTask('watch', []);
 };
